@@ -17,6 +17,12 @@ export const rowToTime = (row) => {
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 };
 
+const calculateSpan = (durationMins) => {
+  const breaksMins = Math.floor(durationMins / 45) * 15;
+  const totalMins = durationMins + breaksMins;
+  return Math.max(1, Math.floor(totalMins / 15));
+};
+
 export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, onDragStart, onDragEnd, draggedBlock }) {
   const [dragOverDay, setDragOverDay] = useState(null);
   const [dragPreview, setDragPreview] = useState(null);
@@ -99,7 +105,7 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
           >
             {blocksByDay[day].map(block => {
                const rowStart = timeToRow(block.startTime);
-               const span = Math.max(1, Math.floor(block.durationMins / 15));
+               const span = calculateSpan(block.durationMins);
                const isBeingDragged = draggedBlock && draggedBlock.id === block.id;
 
                return (
@@ -134,7 +140,7 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
             {dragPreview && dragPreview.day === day && draggedBlock && (
               <div 
                 style={{ 
-                  gridRow: `${timeToRow(dragPreview.startTime)} / span ${Math.max(1, Math.floor(draggedBlock.durationMins / 15))}`, 
+                  gridRow: `${timeToRow(dragPreview.startTime)} / span ${calculateSpan(draggedBlock.durationMins)}`, 
                   gridColumn: '1 / -1',
                   padding: '2px',
                   zIndex: 1,
