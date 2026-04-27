@@ -74,6 +74,17 @@ function App() {
     setIsFormOpen(false);
   };
 
+  const handleDuplicateBlock = (blockData) => {
+    const newBlock = {
+      ...blockData,
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+      day: null,
+      startTime: null
+    };
+    setBlocks(prev => [...prev, newBlock]);
+    setIsFormOpen(false);
+  };
+
   const handleBlockDoubleClick = (block) => {
     setEditingBlock(block);
     setIsFormOpen(true);
@@ -287,6 +298,7 @@ function App() {
           onSave={handleSaveBlock} 
           onClose={() => setIsFormOpen(false)} 
           onDelete={handleDeleteBlock}
+          onDuplicate={handleDuplicateBlock}
         />
       )}
     </div>

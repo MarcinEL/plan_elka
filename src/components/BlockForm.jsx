@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const CLASS_TYPES = ['WYK', 'LAB', 'CWI', 'PRO', 'ZIN'];
 const DEFAULT_COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
 
-export default function BlockForm({ initialData, onSave, onClose, onDelete }) {
+export default function BlockForm({ initialData, onSave, onClose, onDelete, onDuplicate }) {
   const [formData, setFormData] = useState({
     subject: '',
     type: 'WYK',
@@ -123,9 +123,14 @@ export default function BlockForm({ initialData, onSave, onClose, onDelete }) {
           
           <div className="modal-actions">
             {initialData?.id && (
-              <button type="button" className="btn btn-danger" onClick={() => onDelete(formData.id)} style={{ marginRight: 'auto' }}>
-                Usuń
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', marginRight: 'auto' }}>
+                <button type="button" className="btn btn-danger" onClick={() => onDelete(formData.id)}>
+                  Usuń
+                </button>
+                <button type="button" className="btn" onClick={() => onDuplicate(formData)} title="Tworzy kopię w puli nieprzypisanych">
+                  Duplikuj
+                </button>
+              </div>
             )}
             <button type="button" className="btn" onClick={onClose}>Anuluj</button>
             <button type="submit" className="btn btn-primary">Zapisz</button>
