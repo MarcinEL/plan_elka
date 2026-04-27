@@ -155,6 +155,20 @@ function App() {
     }
   };
 
+  const handleMergeFromDB = (key) => {
+    const scheduleRef = ref(db, 'schedules/' + key);
+    get(scheduleRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const selected = snapshot.val();
+        handleMerge(selected);
+      } else {
+        alert("Ten plan już nie istnieje w bazie.");
+      }
+    }).catch(error => {
+      alert("Błąd odczytu dołączenia: " + error.message);
+    });
+  };
+
   const handleNewPlan = () => {
     if (blocks.length > 0) {
       if (!window.confirm("Czy na pewno chcesz utworzyć nowy plan? Niezapisane zmiany na obecnym planie zostaną utracone.")) {
@@ -271,6 +285,7 @@ function App() {
           onExport={handleExport}
           onImport={handleImport}
           onMerge={handleMerge}
+          onMergeFromDB={handleMergeFromDB}
           onExportHTML={handleExportHTML}
           onPrintPDF={handlePrintPDF}
           semester={semester}

@@ -9,6 +9,7 @@ export default function Toolbar({
   onExport, 
   onImport, 
   onMerge,
+  onMergeFromDB,
   onExportHTML,
   onPrintPDF,
   semester, 
@@ -90,16 +91,28 @@ export default function Toolbar({
         <div style={{ width: '1px', height: '24px', background: 'var(--panel-border)', margin: '0 0.25rem' }}></div>
         
         <button className="btn" onClick={onNewPlan} title="Wyczyść i utwórz nowy plan">Nowy</button>
-        <button className="btn" onClick={onSave} title="Zapisz w pamięci przeglądarki">Zapisz</button>
-        <button className="btn btn-danger" onClick={onDeletePlan} title="Usuń obecny plan z pamięci">Usuń</button>
+        <button className="btn" onClick={onSave} title="Zapisz w chmurze">Zapisz</button>
+        <button className="btn btn-danger" onClick={onDeletePlan} title="Usuń obecny plan z chmury">Usuń</button>
         
         <select 
           onChange={(e) => { if(e.target.value) onLoad(e.target.value); e.target.value = ""; }}
           style={{ width: '140px' }}
           defaultValue=""
-          title="Wczytaj z pamięci przeglądarki"
+          title="Wczytaj plan z chmury"
         >
           <option value="" disabled>Wczytaj...</option>
+          {savedSchedulesList.map(name => (
+             <option key={name} value={name}>{name}</option>
+          ))}
+        </select>
+
+        <select 
+          onChange={(e) => { if(e.target.value) onMergeFromDB(e.target.value); e.target.value = ""; }}
+          style={{ width: '140px', border: '1px solid #8b5cf6' }}
+          defaultValue=""
+          title="Dołącz plan z chmury"
+        >
+          <option value="" disabled>Dołącz z bazy...</option>
           {savedSchedulesList.map(name => (
              <option key={name} value={name}>{name}</option>
           ))}
