@@ -18,9 +18,11 @@ export const rowToTime = (row) => {
 };
 
 const calculateSpan = (durationMins) => {
-  const breaksMins = Math.floor(durationMins / 45) * 15;
+  if (!durationMins || durationMins <= 0) return 1;
+  const breaksCount = Math.max(0, Math.ceil(durationMins / 45) - 1);
+  const breaksMins = breaksCount * 15;
   const totalMins = durationMins + breaksMins;
-  return Math.max(1, Math.floor(totalMins / 15));
+  return Math.max(1, Math.round(totalMins / 15));
 };
 
 export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, onDragStart, onDragEnd, draggedBlock }) {
