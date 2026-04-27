@@ -490,3 +490,69 @@ input[type="color"] {
     print-color-adjust: exact !important;
   }
 }
+
+/* Responsive Design (Mobile & Tablets) */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+    height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 250px;
+    border-right: none;
+    border-top: 1px solid var(--panel-border);
+    padding: 1rem;
+    order: 2; /* Sidebar (pool) on bottom */
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.2);
+  }
+
+  .sidebar h2 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .main-content {
+    order: 1; /* Grid on top */
+  }
+
+  .toolbar {
+    height: auto;
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .toolbar-group {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .schedule-container {
+    padding: 0.5rem;
+  }
+
+  .schedule-grid {
+    /* Keep grid width large to prevent squishing, allow horizontal scroll */
+    min-width: 700px;
+  }
+
+  .unscheduled-pool {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5rem;
+    gap: 0.75rem;
+  }
+
+  .unscheduled-block {
+    width: 150px !important;
+    flex-shrink: 0;
+  }
+}
