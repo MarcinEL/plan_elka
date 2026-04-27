@@ -3,6 +3,8 @@ import Toolbar from './components/Toolbar';
 import ScheduleGrid from './components/ScheduleGrid';
 import BlockForm from './components/BlockForm';
 import ClassBlock from './components/ClassBlock';
+import { db } from './firebase';
+import { ref, set, get, onValue, remove } from 'firebase/database';
 
 function App() {
   const [blocks, setBlocks] = useState([]);
@@ -14,21 +16,24 @@ function App() {
   const [editingBlock, setEditingBlock] = useState(null);
   const [draggedBlock, setDraggedBlock] = useState(null);
 
-  const updateSavedList = () => {
-    const allSavedStr = localStorage.getItem('saved_schedules');
-    if (allSavedStr) {
-      try {
-        const allSaved = JSON.parse(allSavedStr);
-        setSavedSchedulesList(Object.keys(allSaved));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  };
-
-  // Load from local storage on mount
+  // Load schedules list from Firebase in real-time
   useEffect(() => {
-    updateSavedList();
+    const schedulesRef = ref(db, 'schedules');
+    const unsubscribe = onValue(schedulesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setSavedSchedulesList(Object.keys(snapshot.val()));
+      } else {
+        setSavedSchedulesList([]);
+      }
+    }, (error) => {
+      console.error("Firebase read error:", error);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Load from local storage (autosave) on mount
+  useEffect(() => {
     const saved = localStorage.getItem('current_schedule');
     if (saved) {
       try {
@@ -164,19 +169,21 @@ function App() {
     window.print();
   };
 
-  // Named Saves (Local Storage)
+  // Named Saves (Cloud Database)
   const handleSave = () => {
     if (!author || !scheduleName) {
       alert("Proszę wpisać Autora oraz Nazwę Planu w górnym pasku przed zapisaniem.");
       return;
     }
-    const key = `[${author}] ${scheduleName}`;
-    const allSavedStr = localStorage.getItem('saved_schedules');
-    const allSaved = allSavedStr ? JSON.parse(allSavedStr) : {};
-    allSaved[key] = { blocks, semester, author, scheduleName };
-    localStorage.setItem('saved_schedules', JSON.stringify(allSaved));
-    updateSavedList();
-    alert(`Zapisano plan jako "${key}".`);
+    const safeKey = `${author} - ${scheduleName}`.replace(/[.#$[\]]/g, '');
+    const scheduleRef = ref(db, 'schedules/' + safeKey);
+    set(scheduleRef, {
+      blocks, semester, author, scheduleName
+    }).then(() => {
+      alert(`Zapisano plan jako "${safeKey}" w chmurze.`);
+    }).catch(error => {
+      alert("Błąd zapisywania. Upewnij się, że w Firebase aktywowałeś Realtime Database w trybie Test Mode.\n" + error.message);
+    });
   };
 
   const handleDeletePlan = () => {
@@ -184,35 +191,33 @@ function App() {
       alert("Proszę wpisać Autora oraz Nazwę Planu, który chcesz usunąć.");
       return;
     }
-    const key = `[${author}] ${scheduleName}`;
-    const allSavedStr = localStorage.getItem('saved_schedules');
-    if (!allSavedStr) return;
-    const allSaved = JSON.parse(allSavedStr);
+    const safeKey = `${author} - ${scheduleName}`.replace(/[.#$[\]]/g, '');
     
-    if (!allSaved[key]) {
-      alert(`Plan "${key}" nie istnieje w pamięci.`);
-      return;
-    }
-
-    if (window.confirm(`Czy na pewno chcesz trwale usunąć plan "${key}" z pamięci przeglądarki?`)) {
-      delete allSaved[key];
-      localStorage.setItem('saved_schedules', JSON.stringify(allSaved));
-      updateSavedList();
-      alert(`Usunięto plan "${key}".`);
+    if (window.confirm(`Czy na pewno chcesz trwale usunąć plan "${safeKey}" z CHMURY?`)) {
+      const scheduleRef = ref(db, 'schedules/' + safeKey);
+      remove(scheduleRef).then(() => {
+        alert(`Usunięto plan "${safeKey}".`);
+      }).catch(error => {
+        alert("Błąd usuwania: " + error.message);
+      });
     }
   };
 
   const handleLoad = (key) => {
-    const allSavedStr = localStorage.getItem('saved_schedules');
-    if (!allSavedStr) return;
-    const allSaved = JSON.parse(allSavedStr);
-    const selected = allSaved[key];
-    if (selected) {
-      setBlocks(selected.blocks || []);
-      setSemester(selected.semester || 'Letni');
-      setAuthor(selected.author || '');
-      setScheduleName(selected.scheduleName || 'Wczytany Plan');
-    }
+    const scheduleRef = ref(db, 'schedules/' + key);
+    get(scheduleRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const selected = snapshot.val();
+        setBlocks(selected.blocks || []);
+        setSemester(selected.semester || 'Letni');
+        setAuthor(selected.author || '');
+        setScheduleName(selected.scheduleName || 'Wczytany Plan');
+      } else {
+        alert("Ten plan już nie istnieje w bazie.");
+      }
+    }).catch(error => {
+      alert("Błąd odczytu: " + error.message);
+    });
   };
 
   const scheduledBlocks = blocks.filter(b => b.day && b.startTime);
