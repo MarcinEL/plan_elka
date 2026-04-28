@@ -18,7 +18,8 @@ export default function Toolbar({
   setAuthor,
   scheduleName,
   setScheduleName,
-  savedSchedulesList
+  savedSchedulesList,
+  onOpenGuide
 }) {
   const fileInputRef = useRef(null);
   const mergeInputRef = useRef(null);
@@ -87,6 +88,7 @@ export default function Toolbar({
 
       <div className="toolbar-group" style={{ flexWrap: 'wrap' }}>
         <button className="btn btn-primary" onClick={onAddClick}>+ Dodaj</button>
+        <button className="btn" style={{ background: '#3b82f6', color: 'white', border: 'none' }} onClick={onOpenGuide} title="Instrukcja obsługi">ℹ️ Pomoc</button>
         
         <div style={{ width: '1px', height: '24px', background: 'var(--panel-border)', margin: '0 0.25rem' }}></div>
         

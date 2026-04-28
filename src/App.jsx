@@ -3,6 +3,7 @@ import Toolbar from './components/Toolbar';
 import ScheduleGrid from './components/ScheduleGrid';
 import BlockForm from './components/BlockForm';
 import ClassBlock from './components/ClassBlock';
+import UserGuideModal from './components/UserGuideModal';
 import { db } from './firebase';
 import { ref, set, get, onValue, remove } from 'firebase/database';
 
@@ -13,6 +14,7 @@ function App() {
   const [scheduleName, setScheduleName] = useState('Nowy Plan');
   const [savedSchedulesList, setSavedSchedulesList] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [editingBlock, setEditingBlock] = useState(null);
   const [draggedBlock, setDraggedBlock] = useState(null);
 
@@ -295,6 +297,7 @@ function App() {
           scheduleName={scheduleName}
           setScheduleName={setScheduleName}
           savedSchedulesList={savedSchedulesList}
+          onOpenGuide={() => setIsGuideOpen(true)}
         />
         
         <ScheduleGrid 
@@ -315,6 +318,10 @@ function App() {
           onDelete={handleDeleteBlock}
           onDuplicate={handleDuplicateBlock}
         />
+      )}
+
+      {isGuideOpen && (
+        <UserGuideModal onClose={() => setIsGuideOpen(false)} />
       )}
     </div>
   );
