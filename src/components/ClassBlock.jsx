@@ -49,7 +49,7 @@ export default function ClassBlock({ block, onDoubleClick, onDragStart, onDragEn
       <div className="block-details">
         {group && <div>Gr: {group}</div>}
         {room && <div>Sala: {room}</div>}
-        <div>{durationMins} min</div>
+        <div>{durationMins % 45 === 0 ? `${durationMins / 45}h` : `${durationMins} min`}</div>
       </div>
     </div>
   );

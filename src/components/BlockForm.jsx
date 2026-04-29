@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 const CLASS_TYPES = ['WYK', 'LAB', 'CWI', 'PRO', 'ZIN'];
-const DEFAULT_COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+const DEFAULT_COLORS = [
+  '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6',
+  '#f43f5e', '#d946ef', '#6366f1', '#0ea5e9', '#84cc16', '#eab308', '#f97316'
+];
 
 export default function BlockForm({ initialData, onSave, onClose, onDelete, onDuplicate }) {
   const [formData, setFormData] = useState({
@@ -88,26 +91,27 @@ export default function BlockForm({ initialData, onSave, onClose, onDelete, onDu
           </div>
           
           <div className="form-group">
-            <label>Czas trwania (minuty)</label>
-            <input 
-              type="number" 
-              name="durationMins" 
-              value={formData.durationMins} 
-              onChange={handleChange} 
-              step="45"
-              min="45"
-            />
+            <label>Czas trwania (1h = 45 min)</label>
+            <select name="durationMins" value={formData.durationMins} onChange={handleChange}>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(h => (
+                <option key={h} value={h * 45}>{h}h ({h * 45} min)</option>
+              ))}
+              {formData.durationMins % 45 !== 0 && (
+                <option value={formData.durationMins}>{formData.durationMins} min (niestandardowy)</option>
+              )}
+            </select>
           </div>
           
           <div className="form-group">
             <label>Kolor klocka</label>
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
               {DEFAULT_COLORS.map(c => (
                 <div 
                   key={c}
                   style={{
                     width: '24px', height: '24px', borderRadius: '4px', background: c, cursor: 'pointer',
-                    border: formData.color === c ? '2px solid white' : 'none'
+                    border: formData.color === c ? '2px solid white' : 'none',
+                    boxShadow: formData.color === c ? '0 0 0 1px rgba(0,0,0,0.5)' : 'none'
                   }}
                   onClick={() => setFormData(prev => ({ ...prev, color: c }))}
                 />
