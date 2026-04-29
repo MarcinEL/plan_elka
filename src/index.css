@@ -206,6 +206,10 @@ input[type="color"] {
   border-bottom: 1px solid var(--panel-border);
 }
 
+.grid-header-day.alt-bg {
+  background: rgba(0, 0, 0, 0.35);
+}
+
 /* Grid Body */
 .grid-time-column {
   background: rgba(0, 0, 0, 0.2);
@@ -226,8 +230,13 @@ input[type="color"] {
 .grid-day-column {
   position: relative;
   border-right: 1px solid var(--panel-border);
+  background-color: transparent;
   background-image: linear-gradient(to bottom, var(--grid-border) 1px, transparent 1px);
   background-size: 100% calc(var(--grid-cell-height) * 4); /* Hour lines */
+}
+
+.grid-day-column.alt-bg {
+  background-color: rgba(0, 0, 0, 0.15);
 }
 
 /* 15 min divisions */

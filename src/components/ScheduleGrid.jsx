@@ -84,8 +84,8 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
     <div className="schedule-container">
       <div className="schedule-grid">
         <div className="grid-header-corner"></div>
-        {DAYS.map(day => (
-          <div key={`header-${day}`} className="grid-header-day">{day}</div>
+        {DAYS.map((day, index) => (
+          <div key={`header-${day}`} className={`grid-header-day ${index % 2 !== 0 ? 'alt-bg' : ''}`}>{day}</div>
         ))}
 
         <div className="grid-time-column">
@@ -96,10 +96,10 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
           ))}
         </div>
 
-        {DAYS.map(day => (
+        {DAYS.map((day, index) => (
           <div 
             key={`col-${day}`} 
-            className={`grid-day-column ${dragOverDay === day ? 'drag-over' : ''}`}
+            className={`grid-day-column ${index % 2 !== 0 ? 'alt-bg' : ''} ${dragOverDay === day ? 'drag-over' : ''}`}
             onDragOver={(e) => handleDragOver(e, day)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, day)}
