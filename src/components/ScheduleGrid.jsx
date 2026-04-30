@@ -28,6 +28,11 @@ const calculateSpan = (durationMins) => {
 export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, onDragStart, onDragEnd, draggedBlock }) {
   const [dragOverDay, setDragOverDay] = useState(null);
   const [dragPreview, setDragPreview] = useState(null);
+  const [hoveredBlockId, setHoveredBlockId] = useState(null);
+
+  const hoveredBlock = hoveredBlockId ? blocks.find(b => b.id === hoveredBlockId) : null;
+  const hoveredRowStart = hoveredBlock ? timeToRow(hoveredBlock.startTime) : null;
+  const hoveredSpan = hoveredBlock ? calculateSpan(hoveredBlock.durationMins) : null;
 
   const handleDragOver = (e, day) => {
     e.preventDefault(); 
@@ -88,12 +93,31 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
           <div key={`header-${day}`} className={`grid-header-day ${index % 2 !== 0 ? 'alt-bg' : ''}`}>{day}</div>
         ))}
 
-        <div className="grid-time-column">
-          {HOURS.map(hour => (
-            <div key={`time-${hour}`} className="time-label">
+        <div 
+          className="grid-time-column"
+          style={{ display: 'grid', gridTemplateRows: 'repeat(52, var(--grid-cell-height))', position: 'relative' }}
+        >
+          {HOURS.map((hour, idx) => (
+            <div 
+              key={`time-${hour}`} 
+              className="time-label"
+              style={{ gridRow: `${idx * 4 + 1} / span 4` }}
+            >
               {hour.toString().padStart(2, '0')}:00
             </div>
           ))}
+          {hoveredBlock && (
+            <div 
+              style={{
+                gridRow: `${hoveredRowStart} / span ${hoveredSpan}`,
+                gridColumn: 1,
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                zIndex: 0,
+                pointerEvents: 'none',
+                boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.3)'
+              }}
+            />
+          )}
         </div>
 
         {DAYS.map((day, index) => (
@@ -113,6 +137,8 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
                return (
                  <div 
                     key={block.id} 
+                    onMouseEnter={() => setHoveredBlockId(block.id)}
+                    onMouseLeave={() => setHoveredBlockId(null)}
                     style={{ 
                       gridRow: `${rowStart} / span ${span}`, 
                       padding: '2px',
@@ -137,6 +163,20 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
                  </div>
                )
             })}
+            
+             {/* Row Highlight */}
+             {hoveredBlock && (
+               <div 
+                 style={{
+                   gridRow: `${hoveredRowStart} / span ${hoveredSpan}`,
+                   gridColumn: 1,
+                   backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                   zIndex: 1,
+                   pointerEvents: 'none',
+                   boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(255, 255, 255, 0.3)'
+                 }}
+               />
+             )}
             
             {/* Ghost Preview Block */}
             {dragPreview && dragPreview.day === day && draggedBlock && (
