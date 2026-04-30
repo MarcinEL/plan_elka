@@ -125,9 +125,9 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
                       padding: '2px',
                       zIndex: 2,
                       height: '100%',
+                      pointerEvents: draggedBlock ? 'none' : 'auto',
                       ...(isBeingDragged ? {
-                         opacity: 0,
-                         pointerEvents: 'none'
+                         opacity: 0
                       } : {})
                     }}
                  >
