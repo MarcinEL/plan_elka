@@ -19,7 +19,11 @@ export default function Toolbar({
   scheduleName,
   setScheduleName,
   savedSchedulesList,
-  onOpenGuide
+  onOpenGuide,
+  onUndo,
+  onRedo,
+  canUndo,
+  canRedo
 }) {
   const fileInputRef = useRef(null);
   const mergeInputRef = useRef(null);
@@ -90,6 +94,11 @@ export default function Toolbar({
         <button className="btn btn-primary" onClick={onAddClick}>+ Dodaj</button>
         <button className="btn" style={{ background: '#3b82f6', color: 'white', border: 'none' }} onClick={onOpenGuide} title="Instrukcja obsługi">ℹ️ Pomoc</button>
         
+        <div style={{ width: '1px', height: '24px', background: 'var(--panel-border)', margin: '0 0.25rem' }}></div>
+        
+        <button className="btn" onClick={onUndo} disabled={!canUndo} style={{ opacity: canUndo ? 1 : 0.5, cursor: canUndo ? 'pointer' : 'not-allowed' }} title="Cofnij">↩️ Cofnij</button>
+        <button className="btn" onClick={onRedo} disabled={!canRedo} style={{ opacity: canRedo ? 1 : 0.5, cursor: canRedo ? 'pointer' : 'not-allowed' }} title="Ponów">↪️ Ponów</button>
+
         <div style={{ width: '1px', height: '24px', background: 'var(--panel-border)', margin: '0 0.25rem' }}></div>
         
         <button className="btn" onClick={onNewPlan} title="Wyczyść i utwórz nowy plan">Nowy</button>

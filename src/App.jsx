@@ -8,7 +8,37 @@ import { db } from './firebase';
 import { ref, set, get, onValue, remove } from 'firebase/database';
 
 function App() {
-  const [blocks, setBlocks] = useState([]);
+  const [history, setHistory] = useState([[]]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const blocks = history[historyIndex] || [];
+
+  const updateBlocks = (newBlocksOrUpdater) => {
+    const nextBlocks = typeof newBlocksOrUpdater === 'function' 
+        ? newBlocksOrUpdater(history[historyIndex] || []) 
+        : newBlocksOrUpdater;
+    
+    if (JSON.stringify(nextBlocks) === JSON.stringify(history[historyIndex] || [])) return;
+
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(nextBlocks);
+    
+    if (newHistory.length > 50) {
+      newHistory.shift();
+      setHistory(newHistory);
+      setHistoryIndex(49);
+    } else {
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+    }
+  };
+
+  const handleUndo = () => {
+    if (historyIndex > 0) setHistoryIndex(historyIndex - 1);
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) setHistoryIndex(historyIndex + 1);
+  };
   const [semester, setSemester] = useState('Letni');
   const [author, setAuthor] = useState('');
   const [scheduleName, setScheduleName] = useState('Nowy Plan');
@@ -40,7 +70,10 @@ function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.blocks) setBlocks(parsed.blocks);
+        if (parsed.blocks) {
+          setHistory([parsed.blocks]);
+          setHistoryIndex(0);
+        }
         if (parsed.semester) setSemester(parsed.semester);
         if (parsed.author) setAuthor(parsed.author);
         if (parsed.scheduleName) setScheduleName(parsed.scheduleName);
@@ -61,7 +94,7 @@ function App() {
   };
 
   const handleSaveBlock = (blockData) => {
-    setBlocks(prev => {
+    updateBlocks(prev => {
       const exists = prev.find(b => b.id === blockData.id);
       if (exists) {
         return prev.map(b => b.id === blockData.id ? { ...b, ...blockData } : b);
@@ -72,7 +105,7 @@ function App() {
   };
 
   const handleDeleteBlock = (id) => {
-    setBlocks(prev => prev.filter(b => b.id !== id));
+    updateBlocks(prev => prev.filter(b => b.id !== id));
     setIsFormOpen(false);
   };
 
@@ -83,7 +116,7 @@ function App() {
       day: null,
       startTime: null
     };
-    setBlocks(prev => [...prev, newBlock]);
+    updateBlocks(prev => [...prev, newBlock]);
     setIsFormOpen(false);
   };
 
@@ -101,7 +134,7 @@ function App() {
   };
 
   const handleBlockDropOnGrid = (id, day, startTime) => {
-    setBlocks(prev => prev.map(b => 
+    updateBlocks(prev => prev.map(b => 
       b.id === id ? { ...b, day, startTime } : b
     ));
     setDraggedBlock(null);
@@ -111,7 +144,7 @@ function App() {
     e.preventDefault();
     const id = e.dataTransfer.getData('text/plain');
     if (!id) return;
-    setBlocks(prev => prev.map(b => 
+    updateBlocks(prev => prev.map(b => 
       b.id === id ? { ...b, day: null, startTime: null } : b
     ));
   };
@@ -137,7 +170,7 @@ function App() {
 
   const handleImport = (data) => {
     if (data && Array.isArray(data.blocks)) {
-      setBlocks(data.blocks);
+      updateBlocks(data.blocks);
       if (data.semester) setSemester(data.semester);
       if (data.author) setAuthor(data.author);
       if (data.scheduleName) setScheduleName(data.scheduleName);
@@ -152,7 +185,7 @@ function App() {
         id: b.id + '_merged_' + Date.now() + Math.random(),
         sourceAuthor: source
       }));
-      setBlocks(prev => [...prev, ...mergedBlocks]);
+      updateBlocks(prev => [...prev, ...mergedBlocks]);
       alert(`Dołączono pomyślnie ${mergedBlocks.length} zajęć od: ${source}`);
     }
   };
@@ -177,7 +210,7 @@ function App() {
         return;
       }
     }
-    setBlocks([]);
+    updateBlocks([]);
     setScheduleName("Nowy Plan");
   };
 
@@ -235,7 +268,7 @@ function App() {
     get(scheduleRef).then((snapshot) => {
       if (snapshot.exists()) {
         const selected = snapshot.val();
-        setBlocks(selected.blocks || []);
+        updateBlocks(selected.blocks || []);
         setSemester(selected.semester || 'Letni');
         setAuthor(selected.author || '');
         setScheduleName(selected.scheduleName || 'Wczytany Plan');
@@ -298,6 +331,10 @@ function App() {
           setScheduleName={setScheduleName}
           savedSchedulesList={savedSchedulesList}
           onOpenGuide={() => setIsGuideOpen(true)}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          canUndo={historyIndex > 0}
+          canRedo={historyIndex < history.length - 1}
         />
         
         <ScheduleGrid 

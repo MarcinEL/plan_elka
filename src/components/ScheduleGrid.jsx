@@ -93,7 +93,7 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
           <div key={`header-${day}`} className={`grid-header-day ${index % 2 !== 0 ? 'alt-bg' : ''}`}>{day}</div>
         ))}
 
-        <div className="grid-time-column">
+        <div className="grid-time-column" style={{ gridRow: 2, gridColumn: 1 }}>
           {HOURS.map(hour => (
             <div key={`time-${hour}`} className="time-label">
               {hour.toString().padStart(2, '0')}:00
@@ -108,7 +108,7 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
             onDragOver={(e) => handleDragOver(e, day)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, day)}
-            style={{ display: 'grid', gridTemplateRows: 'repeat(52, var(--grid-cell-height))', position: 'relative' }}
+            style={{ display: 'grid', gridTemplateRows: 'repeat(52, var(--grid-cell-height))', position: 'relative', gridRow: 2, gridColumn: index + 2 }}
           >
             {blocksByDay[day].map(block => {
                const rowStart = timeToRow(block.startTime);
