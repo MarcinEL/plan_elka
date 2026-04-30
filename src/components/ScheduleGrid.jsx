@@ -118,7 +118,7 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
                return (
                  <div 
                     key={block.id} 
-                    onMouseEnter={() => setHoveredBlockId(block.id)}
+                    onMouseEnter={() => { if (!draggedBlock) setHoveredBlockId(block.id); }}
                     onMouseLeave={() => setHoveredBlockId(null)}
                     style={{ 
                       gridRow: `${rowStart} / span ${span}`, 
@@ -126,11 +126,8 @@ export default function ScheduleGrid({ blocks, onBlockDrop, onBlockDoubleClick, 
                       zIndex: 2,
                       height: '100%',
                       ...(isBeingDragged ? {
-                         position: 'absolute',
                          opacity: 0,
-                         pointerEvents: 'none',
-                         width: 0,
-                         height: 0
+                         pointerEvents: 'none'
                       } : {})
                     }}
                  >
