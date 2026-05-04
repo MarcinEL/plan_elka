@@ -5,23 +5,26 @@ const DAYS = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek'];
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8 to 20. Last hour block is 20:00 to 21:00
 
 export const timeToRow = (timeStr) => {
-  if (!timeStr) return 1;
+  if (!timeStr || typeof timeStr !== 'string' || !timeStr.includes(':')) return 1;
   const [h, m] = timeStr.split(':').map(Number);
+  if (isNaN(h) || isNaN(m)) return 1;
   return (h - 8) * 4 + Math.floor(m / 15) + 1;
 };
 
 export const rowToTime = (row) => {
+  if (!row || isNaN(row) || row < 1) return "08:00";
   const totalMins = (row - 1) * 15;
   const h = Math.floor(totalMins / 60) + 8;
   const m = totalMins % 60;
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 };
 
-const calculateSpan = (durationMins) => {
-  if (!durationMins || durationMins <= 0) return 1;
-  const breaksCount = Math.max(0, Math.ceil(durationMins / 45) - 1);
+export const calculateSpan = (durationMins) => {
+  const parsed = parseInt(durationMins, 10);
+  if (isNaN(parsed) || parsed <= 0) return 1;
+  const breaksCount = Math.max(0, Math.ceil(parsed / 45) - 1);
   const breaksMins = breaksCount * 15;
-  const totalMins = durationMins + breaksMins;
+  const totalMins = parsed + breaksMins;
   return Math.max(1, Math.round(totalMins / 15));
 };
 

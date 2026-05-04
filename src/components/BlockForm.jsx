@@ -37,8 +37,18 @@ export default function BlockForm({ initialData, onSave, onClose, onDelete, onDu
       alert("Nazwa przedmiotu jest wymagana.");
       return;
     }
+    const duration = parseInt(formData.durationMins, 10);
+    if (isNaN(duration) || duration <= 0) {
+      alert("Czas trwania musi być liczbą dodatnią.");
+      return;
+    }
+    if (!/^#[0-9A-F]{6}$/i.test(formData.color)) {
+      alert("Kolor musi być w formacie szesnastkowym (np. #3b82f6).");
+      return;
+    }
     onSave({
       ...formData,
+      durationMins: duration,
       id: formData.id || Date.now().toString(),
     });
   };
